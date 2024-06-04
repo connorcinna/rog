@@ -25,6 +25,7 @@ impl log::Log for Rog
             let pre : String = prefix(&record).expect("Expected prefix string"); 
 
             println!("[{}] {}", pre, record.args());
+            let _ = log_to_file(record, pre);
         }
     }
 
@@ -54,10 +55,9 @@ pub fn prefix(record: &Record) -> Result<String, SetLoggerError>
 
 pub fn log_to_file(record: &Record, pre: String) -> std::io::Result<()>
 {
-    let mut res : std::io::Result<()> = todo!();
+    std::fs::create_dir_all("log")?;
     let s_file = format!("log/{}", &record.file().expect("Expected file name"));
     let mut file = File::create(s_file)?;
-    let s = &record.args().to_string().into_bytes();
-    file.write_all(s)?;
-    res
+    let line = format!("[{}] {}", pre, record.args());
+    Ok(file.write_all(&line.into_bytes())?)
 }
